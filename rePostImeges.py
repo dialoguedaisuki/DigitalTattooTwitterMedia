@@ -55,7 +55,7 @@ def main():
             try:
                 post = api.update_status(status=i[0], media_ids=i[1])
                 print(
-                    "----------------------------------------------------------------投稿済")
+                    "---------------------------------------------------------------")
                 pprint([post._json['created_at'], post._json['text']])
             except Exception as e:
                 print(e)
