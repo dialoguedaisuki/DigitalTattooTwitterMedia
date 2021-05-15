@@ -54,8 +54,7 @@ def main():
         if i[1] != []:
             try:
                 post = api.update_status(status=i[0], media_ids=i[1])
-                print(
-                    "---------------------------------------------------------------")
+                print("---------------------------------------------------------------post")
                 pprint([post._json['created_at'], post._json['text']])
             except Exception as e:
                 print(e)
