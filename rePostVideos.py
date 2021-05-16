@@ -14,7 +14,6 @@ def main():
     csvname = envName + "_tweeted_movie.csv"
     # Extracting text and original URL
     copyIdAndImege = []
-    print(search_words)
     idList = simple_tweet_search(search_words, envName)
     print("---------------------target")
     print(idList)
@@ -30,8 +29,8 @@ def main():
                 print(e)
             ret = re.sub(
                 r"(https?|ftp)(:\/\/[-_\.!~*\'()a-zA-Z0-9;\/?:\@&=\+$,%#]+)", "", tweet.text).replace('@', '')[0:100]
-            # ret += f'\nby @{tweet.user.screen_name}'
-            ret += f'\nby https://twitter.com/{tweet.user.screen_name}'
+            # ret += f'\n by @{tweet.user.screen_name}'
+            ret += f'\n by https://twitter.com/{tweet.user.screen_name}'
             try:
                 url = max([i['url'] for i in tweet.extended_entities['media'][0]['video_info']
                            ['variants'] if i['content_type'] != 'application/x-mpegURL'])
