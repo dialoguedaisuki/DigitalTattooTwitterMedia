@@ -15,7 +15,6 @@ def main():
     csvname = envName + "_tweeted.csv"
     # Extracting text and original URL
     copyIdAndImege = []
-    print(search_words)
     idList = simple_tweet_search(search_words, envName)
     print("---------------------target")
     print(idList)
@@ -31,7 +30,7 @@ def main():
                 print(e)
             ret = re.sub(
                 r"(https?|ftp)(:\/\/[-_\.!~*\'()a-zA-Z0-9;\/?:\@&=\+$,%#]+)", "", tweet.text).replace('@', '')[0:100]
-            # ret += f'\by @{tweet.user.screen_name}'
+            # ret += f'\by {tweet.user.screen_name}'
             ret += f'\n by ttps://twitter.com/{tweet.user.screen_name}'
             try:
                 copyIdAndImege.append([ret, [i['media_url']
