@@ -31,7 +31,7 @@ def main():
             ret = re.sub(
                 r"(https?|ftp)(:\/\/[-_\.!~*\'()a-zA-Z0-9;\/?:\@&=\+$,%#]+)", "", tweet.text).replace('@', '')[0:100]
             # ret += f'\by {tweet.user.screen_name}'
-            ret += f'\n by ttps://twitter.com/{tweet.user.screen_name}'
+            ret += f'\n by https://twitter.com/{tweet.user.screen_name}'
             try:
                 copyIdAndImege.append([ret, [i['media_url']
                                              for i in tweet.extended_entities['media'] if i['type'] != 'video']])
