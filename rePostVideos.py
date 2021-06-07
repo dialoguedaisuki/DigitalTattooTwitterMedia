@@ -5,7 +5,7 @@ import re
 import csv
 
 # get args
-search_words, envName = args()
+search_words, envName, listone = args()
 # Twiter Auth
 api = auth_api(envName)
 api2 = auth_api2(envName)
@@ -28,7 +28,7 @@ def main():
     followerIds = api.followers_ids(meId)
     print("---------------------followerIds")
     print(followerIds)
-    twIds = [i for i in idList if i not in noTweetIds and i not in followerIds]
+    twIds = [i for i in idList if i not in noTweetIds]
     print("---------------------execution targets")
     print(twIds)
     # create post list
@@ -39,14 +39,16 @@ def main():
             print(e)
         ret = re.sub(
             r"(https?|ftp)(:\/\/[-_\.!~*\'()a-zA-Z0-9;\/?:\@&=\+$,%#]+)", "", tweet.text).replace('@', '')[0:100]
-        ret += f'\n by https://twitter.com/{tweet.user.screen_name}'
-        try:
-            url = max([i['url'] for i in tweet.extended_entities['media'][0]['video_info']
-                        ['variants'] if i['content_type'] != 'application/x-mpegURL'])
-            copyIdAndImege.append(
-                [ret, url])
-        except Exception as e:
-            print(e)
+        ret += f' https://twitter.com/{tweet.user.screen_name}/status/{tweet.id}'
+        # ret += f'\n by https://twitter.com/{tweet.user.screen_name}'
+        if tweet.user.id not in followerIds:
+            try:
+                url = max([i['url'] for i in tweet.extended_entities['media'][0]['video_info']
+                            ['variants'] if i['content_type'] != 'application/x-mpegURL'])
+                copyIdAndImege.append(
+                    [ret, url])
+            except Exception as e:
+                print(e)
     pprint(copyIdAndImege)
     # Upload and make post list
     for i in copyIdAndImege:

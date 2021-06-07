@@ -29,7 +29,7 @@ def main():
     followerIds = api.followers_ids(meId)
     print("---------------------followerIds")
     print(followerIds)
-    twIds = [i for i in idList if i not in noTweetIds and i not in followerIds]
+    twIds = [i for i in idList if i not in noTweetIds]
     print("---------------------execution targets")
     print(twIds)
     # create post list
@@ -40,12 +40,14 @@ def main():
             print(e)
         ret = re.sub(
             r"(https?|ftp)(:\/\/[-_\.!~*\'()a-zA-Z0-9;\/?:\@&=\+$,%#]+)", "", tweet.text).replace('@', '')[0:100]
-        ret += f'\n by https://twitter.com/{tweet.user.screen_name}'
-        try:
-            copyIdAndImege.append([ret, [i['media_url']
-                                         for i in tweet.extended_entities['media'] if i['type'] != 'video']])
-        except Exception as e:
-            print(e)
+        ret += f' https://twitter.com/{tweet.user.screen_name}/status/{tweet.id}'
+        # ret += f'\n by https://twitter.com/{tweet.user.screen_name}'
+        if tweet.user.id not in followerIds:
+            try:
+                copyIdAndImege.append([ret, [i['media_url']
+                                             for i in tweet.extended_entities['media'] if i['type'] != 'video']])
+            except Exception as e:
+                print(e)
     pprint(copyIdAndImege)
     # Upload and make post list
     uploadList = []
