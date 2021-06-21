@@ -5,6 +5,8 @@ from io import BytesIO
 import requests
 import twitter
 import time
+import csv
+import re
 
 
 def auth_api(envName):
@@ -72,3 +74,69 @@ def simple_tweet_search(search_words, envName):
                    result.text.replace('\n', ''), result.created_at])
             resultIds.append(result.id)
     return resultIds
+
+
+def simple_tweet_search_j(search_words, envName):
+    api = auth_api(envName)
+    set_count = 100
+    results = api.search(q=search_words, count=set_count, result_type="mixed")
+    # results = api.search(q=word, count=set_count, result_type="recent")
+    resultIds = []
+    exIds = []
+    # blocked user exclusion
+    blocks = api.blocks()
+    print("---block user list---")
+    for i in blocks:
+        print([i.id, i.screen_name])
+        exIds.append(i.id)
+    print("-----Search Result-----")
+    meId = api.me().id
+    for result in results:
+        if result.user.id not in exIds and result.user.id != meId and "RT" not in result.text:
+            print([result.id, result.user.screen_name,
+                   result.text.replace('\n', ''), result.created_at])
+            resultIds.append(result._json)
+    return resultIds
+
+
+def listToCsv(fileName, listName):
+    writeIds = [[i] for i in listName]
+    with open(fileName, 'a', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f, lineterminator='\n')
+        writer.writerows(writeIds)
+    pass
+
+
+def csvToList(csvname):
+    noTweetIds = []
+    with open(csvname) as f:
+        noTweetIds = [str(s.strip()) for s in f.readlines()]
+    return noTweetIds
+
+
+def urlReplyRemove(target):
+    removedTarget = ""
+    try:
+        removedTarget = re.sub(r"(https?|ftp)(:\/\/[-_\.!~*\'()a-zA-Z0-9;\/?:\@&=\+$,%#]+)",
+                               "", target).replace('@', '').replace('\n', '').replace('\r', '')
+    except Exception as e:
+        print(f'{target} is {e}')
+    return removedTarget
+
+
+def multiImgUpload(targetList, envName):
+    api = auth_api(envName)
+    uploadList = []
+    for i in targetList:
+        mediaIds = []
+        for j in i[1]:
+            try:
+                getMedia = requests.get(j).content
+                streamMedia = BytesIO(getMedia)
+                mediaIds.append(api.media_upload(filename='upload.png',
+                                                 file=streamMedia).media_id_string)
+                print(f'{j} is upload')
+            except Exception as e:
+                print(f'{i} is {e}')
+        uploadList.append([i[0], mediaIds])
+    return uploadList

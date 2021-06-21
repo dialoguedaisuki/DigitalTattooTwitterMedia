@@ -1,10 +1,6 @@
-from tweetUtil import simple_tweet_search, auth_api
+from tweetUtil import simple_tweet_search_j, auth_api, csvToList, urlReplyRemove, multiImgUpload, listToCsv
 from args import args
 from pprint import pprint
-import re
-from io import BytesIO
-import requests
-import csv
 
 # get args
 search_words, envName = args()
@@ -14,67 +10,61 @@ api = auth_api(envName)
 
 def main():
     csvname = envName + "_tweeted.csv"
-    # Extracting text and original URL
-    copyIdAndImege = []
-    idList = simple_tweet_search(search_words, envName)
-    print("---------------------search target")
-    print(idList)
-    # Exclude already been posted and
-    print("---------------------noTweetIds")
-    with open(csvname) as f:
-        noTweetIds = [int(s.strip()) for s in f.readlines()]
-    print(noTweetIds)
-    # Exclude images of followers
+    uidName = envName + "_user_id_tweeted.csv"
+    # Extract text and original URL
+    print(search_words)
+    rawJsonList = simple_tweet_search_j(search_words, envName)
+    # print(rawJsonList)
+    # Exclude images that have already been posted
+    tweetedIdList = csvToList(csvname)
+    uidList = csvToList(uidName)
     meId = api.me().screen_name
-    followerIds = api.followers_ids(meId)
-    print("---------------------followerIds")
+    followerIdsInt = api.followers_ids(meId)
+    followerIds = [str(i) for i in followerIdsInt]
+    print("----------------------------------------------------------------Exclusion target (posted)")
+    print(tweetedIdList)
+    print("----------------------------------------------------------------Exclusion target (follower))")
     print(followerIds)
-    twIds = [i for i in idList if i not in noTweetIds]
-    print("---------------------execution targets")
-    print(twIds)
-    # create post list
-    for id in twIds:
-        try:
-            tweet = api.get_status(id)
-        except Exception as e:
-            print(e)
-        ret = re.sub(
-            r"(https?|ftp)(:\/\/[-_\.!~*\'()a-zA-Z0-9;\/?:\@&=\+$,%#]+)", "", tweet.text).replace('@', '')[0:100]
-        ret += f' https://twitter.com/{tweet.user.screen_name}/status/{tweet.id}'
-        # ret += f'\n by https://twitter.com/{tweet.user.screen_name}'
-        if tweet.user.id not in followerIds:
+    print("----------------------------------------------------------------Exclusion target (uid)")
+    print(uidList)
+    copyIdAndImege = []
+    dailyPostedUID = []
+    PostedIdStr = []
+    # json to post raw data
+    for i in rawJsonList:
+        if i['user']['id_str'] not in tweetedIdList and i['user']['id_str'] not in uidList and i['user']['id_str'] not in meId and i['user']['id_str'] not in followerIds:
+            ret = urlReplyRemove(i['text'])[0:60]
+            sN = i['user']['screen_name']
+            twId = i['id_str']
+            ret += f'\nhttps://twitter.com/{sN}/status/{twId}'
+            ret += f'\nhttps://twitter.com/{sN}'
             try:
                 copyIdAndImege.append([ret, [i['media_url']
-                                             for i in tweet.extended_entities['media'] if i['type'] != 'video']])
+                                             for i in i['extended_entities']['media'] if i['type'] != 'video']])
+                dailyPostedUID.append(i['user']['id_str'])
+                PostedIdStr.append(i['id_str'])
             except Exception as e:
-                print(e)
+                print(f'{i} is {e}')
+    print("----------------------------------------------------------------target")
     pprint(copyIdAndImege)
-    # Upload and make post list
-    uploadList = []
-    for i in copyIdAndImege:
-        try:
-            uploadList.append([i[0], [api.media_upload(filename='upload.png', file=BytesIO(
-                requests.get(z).content)).media_id_string for z in i[1]]])
-        except Exception as e:
-            print(e)
-    print("----------------upload list")
+    print("----------------------------------------------------------------Exclusion target (uid) addition")
+    print(dailyPostedUID)
+    print("----------------------------------------------------------------Upload process")
+    uploadList = multiImgUpload(copyIdAndImege, envName)
+    print("----------------------------------------------------------------Uploaded")
     pprint(uploadList)
-    # post
+    print("----------------------------------------------------------------post")
     for i in uploadList:
         if i[1] != []:
             try:
                 post = api.update_status(status=i[0], media_ids=i[1])
-                print(
-                    "---------------------------------------------------------------post")
-                pprint([post._json['created_at'], post._json['text']])
+                print([post.id, post.text])
             except Exception as e:
-                print(e)
-    # Record what you have already posted
-    writeIds = [[i] for i in twIds]
-    with open(csvname, 'a', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f, lineterminator='\n')
-        writer.writerows(writeIds)
-    pass
+                print(f'{i} is {e}')
+    # Record posted ID
+    listToCsv(csvname, PostedIdStr)
+    # Record posted users
+    listToCsv(uidName, dailyPostedUID)
 
 
 if __name__ == "__main__":
