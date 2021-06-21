@@ -75,7 +75,7 @@ def main():
         writer = csv.writer(f, lineterminator='\n')
         writer.writerows(writeIds)
     pass
-    # create fan list
+    # add fan list
     user_in_list(listInList, slugid, envName)
 
 

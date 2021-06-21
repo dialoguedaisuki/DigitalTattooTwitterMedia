@@ -5,7 +5,7 @@ import re
 import csv
 
 # get args
-search_words, envName, listone = args()
+search_words, envName, slugid = args()
 # Twiter Auth
 api = auth_api(envName)
 api2 = auth_api2(envName)

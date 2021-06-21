@@ -3,7 +3,7 @@ from args import args
 from pprint import pprint
 
 # get args
-search_words, envName = args()
+search_words, envName, slugid = args()
 # Twiter Auth
 api = auth_api(envName)
 
