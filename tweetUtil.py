@@ -140,3 +140,23 @@ def multiImgUpload(targetList, envName):
                 print(f'{i} is {e}')
         uploadList.append([i[0], mediaIds])
     return uploadList
+
+
+def user_in_list(userlist, slugid, envName):
+    api = auth_api(envName)
+    if slugid == "":
+        sys.exit()
+    print("-----User List-----")
+    print(userlist)
+    s_userlist = list(set(userlist))
+    print("-----Seted User List-----")
+    print(s_userlist)
+    # add lists
+    for usr in s_userlist:
+        if api.get_user(usr).screen_name != api.me().screen_name:
+            try:
+                api.add_list_member(user_id=usr, slug=slugid,
+                                    owner_screen_name=api.me().screen_name)
+                print(api.get_user(usr).screen_name + " is join!!!")
+            except Exception as e:
+                print(e)
