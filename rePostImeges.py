@@ -32,7 +32,7 @@ def main():
     PostedIdStr = []
     # json to post raw data
     for i in rawJsonList:
-        if i['user']['id_str'] not in tweetedIdList and i['user']['id_str'] not in uidList and i['user']['id_str'] not in meId and i['user']['id_str'] not in followerIds:
+        if i['id_str'] not in tweetedIdList and i['user']['id_str'] not in uidList and i['user']['id_str'] not in meId and i['user']['id_str'] not in followerIds:
             ret = urlReplyRemove(i['text'])[0:60]
             sN = i['user']['screen_name']
             twId = i['id_str']
