@@ -7,6 +7,8 @@ import twitter
 import time
 import csv
 import re
+import sys
+from datetime import datetime
 
 
 def auth_api(envName):
@@ -114,16 +116,6 @@ def csvToList(csvname):
     return noTweetIds
 
 
-def urlReplyRemove(target):
-    removedTarget = ""
-    try:
-        removedTarget = re.sub(r"(https?|ftp)(:\/\/[-_\.!~*\'()a-zA-Z0-9;\/?:\@&=\+$,%#]+)",
-                               "", target).replace('@', '').replace('\n', '').replace('\r', '')
-    except Exception as e:
-        print(f'{target} is {e}')
-    return removedTarget
-
-
 def multiImgUpload(targetList, envName):
     api = auth_api(envName)
     uploadList = []
@@ -160,3 +152,54 @@ def user_in_list(userlist, slugid, envName):
                 print(api.get_user(usr).screen_name + " is join!!!")
             except Exception as e:
                 print(e)
+
+
+def listToCsv(fileName, listName):
+    writeIds = [[i] for i in listName]
+    with open(fileName, 'a', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f, lineterminator='\n')
+        writer.writerows(writeIds)
+    pass
+
+
+def listToCsvMulti(fileName, listName):
+    with open(fileName, 'a', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f, lineterminator='\n')
+        writer.writerows(listName)
+    pass
+
+
+def listToCsvDaily(envName, listName):
+    now = datetime.now()
+    dt = now.strftime('%Y%m%d')
+    filename = f'./csv/{envName}_{dt}.csv'
+    with open(filename, 'a', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f, lineterminator='\n')
+        writer.writerows(listName)
+    pass
+
+
+def csvToList(csvname):
+    noTweetIds = []
+    with open(csvname) as f:
+        noTweetIds = [str(s.strip()) for s in f.readlines()]
+    return noTweetIds
+
+
+def csvToListMulti(csvname):
+    listName = []
+    with open(csvname) as f:
+        reader = csv.reader(f)
+        for r in reader:
+            listName.append(r)
+    return listName
+
+
+def urlReplyRemove(target):
+    removedTarget = ""
+    try:
+        removedTarget = re.sub(r"(https?|ftp)(:\/\/[-_\.!~*\'()a-zA-Z0-9;\/?:\@&=\+$,%#]+)",
+                               "", target).replace('@', '').replace('\n', '').replace('\r', '')
+    except Exception as e:
+        print(f'{target} is {e}')
+    return removedTarget
