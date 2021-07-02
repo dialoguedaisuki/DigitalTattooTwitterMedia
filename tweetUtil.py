@@ -9,6 +9,7 @@ import csv
 import re
 import sys
 from datetime import datetime
+from fanScreenShot import fanSarvice
 
 
 def auth_api(envName):
@@ -203,3 +204,21 @@ def urlReplyRemove(target):
     except Exception as e:
         print(f'{target} is {e}')
     return removedTarget
+
+
+def screenShotAndUpload(targetList, envName, hashTagStr):
+    api = auth_api(envName)
+    uploadList = []
+    for i in targetList:
+        ret = f'#{hashTagStr}\n'
+        ret += f'name:{i[2]}\n'
+        ret += f'tweets:{i[4]}\n'
+        ret += f'bio: {i[3]}\n'
+        ret = ret[0:70]
+        ret += f' https://twitter.com/{i[0]}/status/{i[1]}\n'
+        try:
+            uploadList.append([ret, [api.media_upload(
+                filename='upload.png', file=i).media_id_string for i in fanSarvice(i[0])]])
+        except Exception as e:
+            print(f'{i} is {e}')
+    return uploadList
