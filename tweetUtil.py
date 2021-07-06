@@ -40,6 +40,21 @@ def auth_api2(envName):
     return api
 
 
+def auth_api_wait(envName):
+    config = configparser.ConfigParser()
+    config.read('setting.ini')
+    print("envName is " + envName)
+    consumer_key = config.get(envName, 'consumer_key')
+    consumer_secret = config.get(envName, 'consumer_secret')
+    access_key = config.get(envName, 'access_key')
+    access_secret = config.get(envName, 'access_secret')
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_key, access_secret)
+    api = tweepy.API(auth, wait_on_rate_limit=True,
+                     wait_on_rate_limit_notify=True)
+    return api
+
+
 def uploadVideo(envName, movieUrl, text):
     text = text
     ioimg = requests.get(movieUrl)
@@ -215,3 +230,12 @@ def screenShotAndUpload(targetList, envName, hashTagStr):
         except Exception as e:
             print(f'{i} is {e}')
     return uploadList
+
+
+def blockUser(envName, listName) -> Union[str, list]:
+    api = auth_api(envName)
+    for i in listName:
+        try:
+            api.create_block(i)
+        except Exception as e:
+            print(f'{i}' is {e})
