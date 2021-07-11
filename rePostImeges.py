@@ -1,4 +1,4 @@
-from tweetUtil import simple_tweet_search_j, auth_api, csvToList, urlReplyRemove, multiImgUpload, listToCsv
+from tweetUtil import simple_tweet_search_j, auth_api, csvToList, urlReplyRemove, multiImgUpload, listToCsv, csvToListMulti, listToCsvDaily, blockUser
 from args import args
 from pprint import pprint
 
@@ -16,7 +16,8 @@ def main():
     rawJsonList = simple_tweet_search_j(search_words, envName)
     # print(rawJsonList)
     # Exclude images that have already been posted
-    tweetedIdList = csvToList(csvname)
+    tweetedIdList = csvToListMulti(csvname)
+    tweetedIdList = list(map(lambda x: x[0], tweetedIdList))
     uidList = csvToList(uidName)
     meId = api.me().screen_name
     followerIdsInt = api.followers_ids(meId)
@@ -29,7 +30,7 @@ def main():
     print(uidList)
     copyIdAndImege = []
     dailyPostedUID = []
-    PostedIdStr = []
+    postedIdStr = []
     # json to post raw data
     for i in rawJsonList:
         if i['id_str'] not in tweetedIdList and i['user']['id_str'] not in uidList and i['user']['id_str'] not in meId and i['user']['id_str'] not in followerIds:
@@ -37,14 +38,15 @@ def main():
             sN = i['user']['screen_name']
             twId = i['id_str']
             ret += f'\nhttps://twitter.com/{sN}/status/{twId}'
-            ret += f'\nhttps://twitter.com/{sN}'
+            ret += f'\nby https://twitter.com/{sN}'
             try:
                 copyIdAndImege.append([ret, [i['media_url']
                                              for i in i['extended_entities']['media'] if i['type'] != 'video']])
-                dailyPostedUID.append(i['user']['id_str'])
-                PostedIdStr.append(i['id_str'])
             except Exception as e:
-                print(f'{i} is {e}')
+                print(f'{twId} is {e}')
+            else:
+                dailyPostedUID.append(i['user']['id_str'])
+                postedIdStr.append([i['id_str'], i['user']['screen_name']])
     print("----------------------------------------------------------------target")
     pprint(copyIdAndImege)
     print("----------------------------------------------------------------Exclusion target (uid) addition")
@@ -62,9 +64,16 @@ def main():
             except Exception as e:
                 print(f'{i} is {e}')
     # Record posted ID
-    listToCsv(csvname, PostedIdStr)
+    listToCsv(csvname, postedIdStr)
     # Record posted users
     listToCsv(uidName, dailyPostedUID)
+    # Search attck usera
+    listToCsvDaily(envName, postedIdStr)
+    # block
+    blockUserList = [i[1] for i in postedIdStr]
+    blockUserList = blockUser(envName, blockUserList)
+    print("----------------------------------------------------------------block")
+    print(blockUserList)
 
 
 if __name__ == "__main__":

@@ -232,10 +232,20 @@ def screenShotAndUpload(targetList, envName, hashTagStr):
     return uploadList
 
 
-def blockUser(envName, listName) -> Union[str, list]:
+def blockUser(envName, listName):
     api = auth_api(envName)
     for i in listName:
         try:
             api.create_block(i)
         except Exception as e:
             print(f'{i}' is {e})
+
+
+def listToCsvDaily(envName, listName):
+    now = datetime.now()
+    dt = now.strftime('%Y%m%d')
+    filename = f'./csv/{envName}_{dt}.csv'
+    with open(filename, 'a', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f, lineterminator='\n')
+        writer.writerows(listName)
+    pass
