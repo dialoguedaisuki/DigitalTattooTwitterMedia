@@ -77,20 +77,13 @@ def simple_tweet_search(search_words, envName):
     results = api.search(q=search_words, count=set_count, result_type="mixed")
     # results = api.search(q=word, count=set_count, result_type="recent")
     resultIds = []
-    exIds = []
-    # blocked user exclusion
-    blocks = api.blocks()
-    print("---block user list---")
-    for i in blocks:
-        print([i.id, i.screen_name])
-        exIds.append(i.id)
     print("-----Search Result-----")
     meId = api.me().id
     for result in results:
-        if result.user.id not in exIds and result.user.id != meId and "RT" not in result.text:
+        if "RT @" not in result.text and result.user.id != meId:
             print([result.id, result.user.screen_name,
                    result.text.replace('\n', ''), result.created_at])
-            resultIds.append(result.id)
+            resultIds.append(result)
     return resultIds
 
 
@@ -249,3 +242,12 @@ def listToCsvDaily(envName, listName):
         writer = csv.writer(f, lineterminator='\n')
         writer.writerows(listName)
     pass
+
+
+def urlToByteIO(urls):
+    byteAs = []
+    for b in urls:
+        getMedia = requests.get(b).content
+        # streamMedia = BytesIO(getMedia)
+        byteAs.append(getMedia)
+    return byteAs
