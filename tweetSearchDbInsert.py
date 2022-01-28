@@ -3,6 +3,7 @@ from pprint import pprint
 from dbUtil import *
 from tweetUtil import *
 import sys
+from datetime import datetime
 
 # get args
 envName = sys.argv[1]
@@ -16,6 +17,7 @@ api = auth_api(envName)
 def main():
     csvname = envName + "_tweeted.csv"
     uidName = envName + "_user_id_tweeted.csv"
+    now = datetime.now()
     # Extract text and original URL
     print(search_words)
     rawJsonList = simple_tweet_search(search_words, envName)
@@ -34,6 +36,7 @@ def main():
     print(uidList)
     preInsertDatals = []
     postedIdStr = []
+    dailyPostedUID = []
     print("----------------------------------------------------------------target")
     for r in rawJsonList:
         if r.id_str not in tweetedIdList and \
@@ -51,6 +54,7 @@ def main():
             try:
                 urls = [rawJ['media_url'] for rawJ in rawJ['extended_entities']
                         ['media'] if rawJ['type'] != 'video']
+                pprint(urls)
                 byteas = urlToByteIO(urls)
                 preInsertDatals.append(
                     [twId, created_at, screen_name, tw_text, bio, rawJ, byteas])
@@ -58,6 +62,7 @@ def main():
                 print(f'https://twitter.com/i/web/status/{r.id_str} is {e}')
             else:
                 postedIdStr.append([r.id_str, r.user.screen_name])
+                dailyPostedUID.append(r.user.id_str)
     # 格納対象
     for i in preInsertDatals:
         print(i[0], i[1], i[2], i[3], i[4], len(i[5]), len(i[6]))
@@ -66,13 +71,16 @@ def main():
         with conn.cursor() as cur:
             for i in preInsertDatals:
                 # info table insert
-                cur.execute('INSERT INTO info (id, create_at, screen_name, tweet_text, bio, raw_json) VALUES (%s, %s, %s, %s, %s, %s)',
-                            (i[0], i[1], i[2], i[3], i[4], str(i[5])))
+                cur.execute('INSERT INTO info (id, create_at, screen_name, tweet_text, bio, raw_json, insert_at) VALUES (%s, %s, %s, %s, %s, %s, %s)',
+                            (i[0], i[1], i[2], i[3], i[4], str(i[5]), now))
                 # byte insert
                 for x, y in enumerate(i[6]):
                     cur.execute('INSERT INTO image (id, num, image) VALUES (%s, %s, %s)',
                                 (i[0], x, y))
         conn.commit()
+    # posted uid
+    listToCsv(uidName, dailyPostedUID)
+    # posted tweet uid
     listToCsvMulti(csvname, postedIdStr)
 
 

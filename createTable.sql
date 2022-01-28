@@ -5,7 +5,8 @@ create table info (
  	screen_name text,
  	tweet_text text,
  	bio text,
-	raw_json text
+	raw_json text,
+	insert_at timestamp
 );
 
 -- 画像
