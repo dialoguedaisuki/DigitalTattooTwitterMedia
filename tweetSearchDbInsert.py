@@ -28,16 +28,9 @@ def main():
     meId = api.me().screen_name
     followerIdsInt = api.followers_ids(meId)
     followerIds = [str(i) for i in followerIdsInt]
-    print("----------------------------------------------------------------Exclusion target (posted)")
-    print(tweetedIdList)
-    print("----------------------------------------------------------------Exclusion target (follower))")
-    print(followerIds)
-    print("----------------------------------------------------------------Exclusion target (uid)")
-    print(uidList)
     preInsertDatals = []
     postedIdStr = []
     dailyPostedUID = []
-    print("----------------------------------------------------------------target")
     for r in rawJsonList:
         if r.id_str not in tweetedIdList and \
             r.user.id_str not in uidList and \
@@ -63,7 +56,7 @@ def main():
             else:
                 postedIdStr.append([r.id_str, r.user.screen_name])
                 dailyPostedUID.append(r.user.id_str)
-    # 格納対象
+    print("----------------------------------------------------------------target")
     for i in preInsertDatals:
         print(i[0], i[1], i[2], i[3], i[4], len(i[5]), len(i[6]))
     # db insert

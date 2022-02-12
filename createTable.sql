@@ -1,6 +1,6 @@
 -- 基本情報
 create table info (
- 	id text PRIMARY KEY, 
+ 	id bigint PRIMARY KEY, 
  	create_at timestamp,
  	screen_name text,
  	tweet_text text,
@@ -9,9 +9,10 @@ create table info (
 	insert_at timestamp
 );
 
+
 -- 画像
 create table image(
-  id text, 
+  id bigint, 
   num integer, 
   image bytea, 
   foreign key (id) references info(id)
