@@ -14,6 +14,6 @@ create table info (
 create table image(
   id bigint, 
   num integer, 
-  image bytea, 
+  image text, 
   foreign key (id) references info(id)
 );

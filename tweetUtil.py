@@ -10,6 +10,7 @@ import re
 import sys
 from datetime import datetime
 from fanScreenShot import fanSarvice
+from PIL import Image
 
 
 def auth_api(envName):
@@ -251,3 +252,16 @@ def urlToByteIO(urls):
         # streamMedia = BytesIO(getMedia)
         byteAs.append(getMedia)
     return byteAs
+
+
+def urlToSaveImage(urls, twId):
+    imagePaths = []
+    for flag, url in enumerate(urls):
+        r = requests.get(url)
+        if r.status_code == 200:
+            with BytesIO(r.content) as buf:
+                img = Image.open(buf)
+                filePath = f"./image/{twId}_{flag}.{img.format.lower()}"
+                img.save(filePath)
+        imagePaths.append(filePath)
+    return imagePaths
