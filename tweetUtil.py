@@ -261,7 +261,8 @@ def urlToSaveImage(urls, twId):
         if r.status_code == 200:
             with BytesIO(r.content) as buf:
                 img = Image.open(buf)
+                fileName = f'{twId}_{flag}.{img.format.lower()}'
                 filePath = f"./image/{twId}_{flag}.{img.format.lower()}"
                 img.save(filePath)
-        imagePaths.append(filePath)
+        imagePaths.append(fileName)
     return imagePaths
