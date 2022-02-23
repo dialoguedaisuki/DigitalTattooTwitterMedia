@@ -35,7 +35,7 @@ for i, j in scLs:
     try:
         res = api.get_status(i)._json
     except Exception as e:
-        print(f'{urlCreate(j, i)} is delete')
+        print(f'{urlCreate(j, i)} is delete {e}')
         dbRes = insflag(True, i, db_env)
         print(dbRes)
     else:
