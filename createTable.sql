@@ -6,7 +6,8 @@ create table info (
  	tweet_text text,
  	bio text,
 	raw_json text,
-	insert_at timestamp
+	insert_at timestamp,
+	delflag boolean
 );
 
 

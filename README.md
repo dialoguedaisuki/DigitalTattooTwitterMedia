@@ -31,6 +31,7 @@ fc-cache -fv
 
 - API settings
   - `touch setting.ini`
+  - `touch db_setting.ini`
   - [docs](https://docs.python.org/ja/3/library/configparser.html)
 
 - Create csv
