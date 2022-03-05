@@ -35,12 +35,14 @@ pprint(scLs)
 
 for i, j, time in scLs:
     diff = now - time
+    status_code = "429"
     try:
         res = api.get_status(i)._json
     except Exception as e:
         print(f'{urlCreate(j, i)} is delete {e}')
-        dbRes = insflag(True, i, db_env)
-        print(dbRes)
+        if status_code not in e:
+            dbRes = insflag(True, i, db_env)
+            print(dbRes)
     else:
         print(f'{urlCreate(j, i)} is not delete')
         if diff.days > 1:
