@@ -2,6 +2,7 @@ from pprint import pprint
 from tweetUtil import auth_api
 from dbUtil import get_connection
 import sys
+from datetime import datetime
 
 
 def getQueryResult(db_env):
@@ -28,17 +29,21 @@ def urlCreate(scName, id):
 api = auth_api(sys.argv[1])
 db_env = sys.argv[2]
 scLs = getQueryResult(db_env)
-scLs = [[i[0], i[2]] for i in scLs]
+scLs = [[i[0], i[2], i[1]] for i in scLs]
+now = datetime.now()
 pprint(scLs)
 
-for i, j in scLs:
+for i, j, time in scLs:
     try:
         res = api.get_status(i)._json
     except Exception as e:
         print(f'{urlCreate(j, i)} is delete {e}')
-        dbRes = insflag(True, i, db_env)
-        print(dbRes)
+        diff = now - time
+        if diff.days > 1:
+            dbRes = insflag(True, i, db_env)
+            print(dbRes)
     else:
         print(f'{urlCreate(j, i)} is not delete')
-        dbRes = insflag(False, i, db_env)
-        print(dbRes)
+        if diff.days > 1:
+            dbRes = insflag(False, i, db_env)
+            print(dbRes)

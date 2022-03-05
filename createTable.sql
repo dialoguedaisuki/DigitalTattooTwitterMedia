@@ -28,8 +28,9 @@ SELECT info.id,
    info.bio,
    image.image,
    image.num,
-   info.delflag
-  FROM (info JOIN image ON ((info.id = image.id))) 
+   info.delflag,
+   image.score
+  FROM (info JOIN image ON ((info.id = image.id))); 
 
 -- FILTER VIEW
 CREATE VIEW infoimage as 
@@ -52,4 +53,7 @@ SELECT info.id,
   AND bio NOT LIKE '%推%'
   AND tweet_text NOT LIKE '%ラフ%'
   AND tweet_text NOT LIKE '%描%'
-  AND tweet_text NOT LIKE '%下書%';
+  AND tweet_text NOT LIKE '%下書%'
+  AND score < 1;
+
+  
