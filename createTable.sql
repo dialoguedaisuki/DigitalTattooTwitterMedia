@@ -7,7 +7,8 @@ create table info (
  	bio text,
 	raw_json text,
 	insert_at timestamp,
-	delflag boolean
+	delflag boolean,
+  votescore bigint
 );
 
 
@@ -42,7 +43,8 @@ SELECT info.id,
    image.image,
    image.num,
    info.delflag,
-   image.score
+   image.score,
+   info.votescore
   FROM (info JOIN image ON ((info.id = image.id)))
   WHERE bio NOT LIKE '%成人%' 
   AND bio NOT LIKE '%絵%'
