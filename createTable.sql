@@ -56,6 +56,7 @@ SELECT info.id,
   AND tweet_text NOT LIKE '%ラフ%'
   AND tweet_text NOT LIKE '%描%'
   AND tweet_text NOT LIKE '%下書%'
-  AND score < 1;
+  AND score < 1
+  AND create_at > now() - interval '1 month';
 
   
