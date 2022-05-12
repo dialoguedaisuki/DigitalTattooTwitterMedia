@@ -8,7 +8,8 @@ create table info (
 	raw_json text,
 	insert_at timestamp,
 	delflag boolean,
-  votescore bigint
+  votescore bigint,
+  uid bigint
 );
 
 
@@ -30,7 +31,9 @@ SELECT info.id,
    image.image,
    image.num,
    info.delflag,
-   image.score
+   image.score,
+   info.votescore,
+   info.uid
   FROM (info JOIN image ON ((info.id = image.id))); 
 
 -- FILTER VIEW
@@ -44,7 +47,8 @@ SELECT info.id,
    image.num,
    info.delflag,
    image.score,
-   info.votescore
+   info.votescore,
+   info.uid
   FROM (info JOIN image ON ((info.id = image.id)))
   WHERE bio NOT LIKE '%成人%' 
   AND bio NOT LIKE '%絵%'
@@ -59,4 +63,18 @@ SELECT info.id,
   AND score < 1
   AND create_at > now() - interval '1 month';
 
-  
+-- RANKING VIEW
+CREATE VIEW ranking as 
+SELECT 
+  info.id,
+  info.create_at,
+  info.screen_name,
+  info.tweet_text,
+  info.bio,
+  info.votescore,
+  info.uid,
+  image.image,
+  image.num
+FROM (info JOIN image ON ((info.id = image.id)))
+WHERE votescore is not null
+ORDER BY info.votescore desc, info.id, image.num;

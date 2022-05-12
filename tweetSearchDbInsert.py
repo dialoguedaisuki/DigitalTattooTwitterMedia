@@ -39,6 +39,7 @@ def main():
             # print([r.id, r.user.screen_name,
             #        r.text.replace('\n', ''), r.created_at])
             twId = r.id_str
+            uid = r.user.id
             screen_name = r.user.screen_name
             tw_text = urlReplyRemove(r.text)
             bio = r.user.description.replace('\n', '')
@@ -51,7 +52,7 @@ def main():
                 filaPathList = urlToSaveImage(urls, twId)
                 pprint(filaPathList)
                 preInsertDatals.append(
-                    [twId, created_at, screen_name, tw_text, bio, rawJ, filaPathList])
+                    [twId, created_at, screen_name, tw_text, bio, rawJ, filaPathList, uid])
             except Exception as e:
                 print(f'https://twitter.com/i/web/status/{r.id_str} is {e}')
             else:
@@ -59,14 +60,14 @@ def main():
                 dailyPostedUID.append(r.user.id_str)
     print("----------------------------------------------------------------target")
     for i in preInsertDatals:
-        print(i[0], i[1], i[2], i[3], i[4], len(i[5]), i[6])
+        print(i[0], i[1], i[2], i[3], i[4], len(i[5]), i[6], i[7])
     # db insert
     with get_connection(db_envName) as conn:
         with conn.cursor() as cur:
             for i in preInsertDatals:
                 # info table insert
-                cur.execute('INSERT INTO info (id, create_at, screen_name, tweet_text, bio, raw_json, insert_at) VALUES (%s, %s, %s, %s, %s, %s, %s)',
-                            (i[0], i[1], i[2], i[3], i[4], str(i[5]), now))
+                cur.execute('INSERT INTO info (id, create_at, screen_name, tweet_text, bio, raw_json, insert_at, uid) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
+                            (i[0], i[1], i[2], i[3], i[4], str(i[5]), now, i[7]))
                 # byte insert
                 for x, y in enumerate(i[6]):
                     cur.execute('INSERT INTO image (id, num, image) VALUES (%s, %s, %s)',
