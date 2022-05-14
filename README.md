@@ -5,7 +5,7 @@ Reposts the images / videos in the search results for the specified phrase.
 - Installation of required libraries
 
 ```bash
-pip install tweepy==3.1.0
+pip install tweepy==3.10.0
 pip install twitter
 pip install python-twitter
 pip install configparser
