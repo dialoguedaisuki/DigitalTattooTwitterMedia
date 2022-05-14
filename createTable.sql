@@ -9,7 +9,8 @@ create table info (
 	insert_at timestamp,
 	delflag boolean,
   votescore bigint,
-  uid bigint
+  uid bigint,
+  post_at timestamp
 );
 
 
@@ -78,3 +79,39 @@ SELECT
 FROM (info JOIN image ON ((info.id = image.id)))
 WHERE votescore is not null
 ORDER BY info.votescore desc, info.id, image.num;
+
+
+-- ARRIVAL VIEW(post)
+CREATE VIEW arrival_post as 
+SELECT 
+  info.id,
+  info.screen_name,
+  info.uid,
+  info.tweet_text,
+  info.bio,
+  info.post_at,
+  image.image,
+  image.num,
+  info.votescore
+FROM (info JOIN image ON ((info.id = image.id)))
+WHERE post_at is not null
+ORDER BY post_at desc
+LIMIT 100;
+
+
+-- ARRIVAL VIEW(insert)
+CREATE VIEW arrival_insert as 
+SELECT 
+  info.id,
+  info.screen_name,
+  info.uid,
+  info.tweet_text,
+  info.bio,
+  info.insert_at,
+  image.image,
+  image.num,
+  info.votescore
+FROM (info JOIN image ON ((info.id = image.id)))
+WHERE insert_at is not null
+ORDER BY insert_at desc
+LIMIT 100;
